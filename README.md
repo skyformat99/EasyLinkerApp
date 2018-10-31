@@ -1,4 +1,6 @@
-# EasyLinkerApp
+
+![](http://octklz398.bkt.clouddn.com/easylinker_logo.png)
+
 为 [EasyLinker](https://github.com/wwhai/EasyLinker "EasyLinker") 配套的Android应用！ 
 
 <img width="40%" src="http://octklz398.bkt.clouddn.com/Screenshot_1526087192.png"/> <img width="40%" src="http://octklz398.bkt.clouddn.com/Screenshot_1526088281.png"/>
@@ -10,8 +12,8 @@
 
 ---
 
-###Thanks For
----
+# Thanks For
+
 * 闪屏动画：[TextPathView](https://github.com/totond/TextPathView)  
 * 列表刷新、加载：[SmartRefreshLayout](https://github.com/scwang90/SmartRefreshLayout)  
 * 6.0权限处理：[RxPermissions](https://github.com/tbruyelle/RxPermissions)  
@@ -21,7 +23,7 @@
 ---
 
 # License
----
+
 Copyright 2018 TinycoderWang
 
 Licensed under the Apache License, Version 2.0 (the "License");

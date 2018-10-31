@@ -203,37 +203,41 @@ public class DevListPresenter extends BasePresenter<DevListContract.View, DevLis
     public void sendCommandToDevice(String deviceId, String command) {
 
         // 处理command
-        try {
-            StringBuilder sb = new StringBuilder();
-            String[] commands = command.split(",");
-            if (commands != null) {
-                for (String item : commands) {
-                    String[] innerItem = item.split(":");
-                    if (innerItem != null) {
-                        sb.append("\"")
-                                .append(innerItem[0].trim())
-                                .append("\":")
-                                .append("\"")
-                                .append(innerItem[1].trim())
-                                .append("\"")
-                                .append(",");
+        if (command.startsWith("{") && command.endsWith("}")) {   // 用户自己输入的简单json内容（不支持嵌套）
+            try {
+                command = command.substring(1, command.length() - 1);
+                StringBuilder sb = new StringBuilder();
+                String[] commands = command.split(",");
+                if (commands != null) {
+                    for (String item : commands) {
+                        String[] innerItem = item.split(":");
+                        if (innerItem != null) {
+                            sb.append("\"")
+                                    .append(innerItem[0].trim())
+                                    .append("\":")
+                                    .append("\"")
+                                    .append(innerItem[1].trim())
+                                    .append("\"")
+                                    .append(",");
+                        }
                     }
+                    if (sb.length() > 0) {
+                        sb.deleteCharAt(sb.length() - 1);
+                    }
+                    command = sb.toString();
                 }
-                if (sb.length() > 0) {
-                    sb.deleteCharAt(sb.length() - 1);
-                }
-                command = sb.toString();
+                command = "{" + command + "}";
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                mView.showMessage("指令格式错误！");
+                return;
             }
-            if (!command.startsWith("{")) {
-                command = "{ " + command;
-            }
-            if (!command.endsWith("}")) {
-                command += " }";
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            mView.showMessage("指令格式错误！");
-            return;
+        } else {   // 固定的cmd
+            StringBuilder sb = new StringBuilder("{\"cmd\":\"");
+            sb.append(command)
+                    .append("\"}");
+            command = sb.toString();
         }
 
 
@@ -265,6 +269,51 @@ public class DevListPresenter extends BasePresenter<DevListContract.View, DevLis
             @Override
             public void onComplete() {
                 Logger.i("%s requestDeviceBygroup onComplete !", TAG);
+            }
+        });
+    }
+
+
+    /**
+     * 添加设备
+     *
+     * @param groupId      群组id
+     * @param groupName    群组名称
+     * @param deviceName   设备名称
+     * @param deviceDesc   设备描述
+     * @param locationDesc 位置描述
+     * @param latitude     纬度
+     * @param longitude    经度
+     */
+    public void addDevice(String groupId, String groupName, String deviceName, String deviceDesc, String locationDesc, String latitude, String longitude) {
+        mModel.createADevice(groupId,groupName,deviceName,deviceDesc,locationDesc,latitude,longitude,new Observer<NetResult>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+                mCompositeDisposable.add(d);
+            }
+
+            @Override
+            public void onNext(NetResult netResult) {
+                if (netResult != null) {
+                    // 添加成功
+                    if (NetResult.SUCCESS == netResult.getState()) {
+                        mView.createDeviceSuccess();
+                    }
+                    mView.showMessage(netResult.getMessage());
+                } else {
+                    mView.createDeviceError();
+                }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Logger.e("%s addDevice error ! MSG : %s", TAG, e.getMessage());
+                mView.createDeviceError();
+            }
+
+            @Override
+            public void onComplete() {
+                Logger.i("%s addDevice onComplete !", TAG);
             }
         });
     }
